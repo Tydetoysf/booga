@@ -1,4 +1,4 @@
-print("Loading Project Instra Hub -- Booga Booga Reborn")
+print("Loading Project Intra Hub -- Booga Booga Reborn")
 print("-----------------------------------------")
 local Library = loadstring(game:HttpGetAsync("https://github.com/1dontgiveaf/Fluent-Renewed/releases/download/v1.0/Fluent.luau"))()
 local SaveManager = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/1dontgiveaf/Fluent-Renewed/refs/heads/main/Addons/SaveManager.luau"))()
