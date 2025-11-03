@@ -1189,17 +1189,5 @@ task.spawn(function()
     end
 end)
 
--- Setup SaveManager / InterfaceManager gracefully (pcall)
-pcall(function() SaveManager:SetLibrary(Library) end)
-pcall(function() InterfaceManager:SetLibrary(Library) end)
-pcall(function() SaveManager:IgnoreThemeSettings() end)
-pcall(function() SaveManager:SetIgnoreIndexes{} end)
-pcall(function() InterfaceManager:SetFolder("FluentScriptHub") end)
-pcall(function() SaveManager:SetFolder("FluentScriptHub/specific-game") end)
-pcall(function() InterfaceManager:BuildInterfaceSection(Tabs.Settings) end)
-pcall(function() SaveManager:BuildConfigSection(Tabs.Settings) end)
-pcall(function() Window:SelectTab(1) end)
-pcall(function() Library:Notify{ Title = "Project Instra Hub", Content = "Loaded (defensive mode).", Duration = 6 } end)
-pcall(function() SaveManager:LoadAutoloadConfig() end)
 
 print("Done! Defensive Project Intra Hub loaded.")
