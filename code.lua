@@ -849,34 +849,28 @@ local function tweenpbs(range, fruitname)
     end
 end
 
--- Farming loops (batched planting)
 task.spawn(function()
     while true do
-        if not planttoggle.Value then task.wait(0.05); continue end
+        if not planttoggle.Value then
+            task.wait(0.05)
+            continue
+        end
+
         local range = tonumber(plantrangeslider.Value) or 30
-        local delay = tonumber(plantdelayslider.Value) or 0.05
-        local burst = 10000000
         local selectedfruit = fruitdropdown.Value
         local itemID = fruittoitemid[selectedfruit] or 94
+
         local plantboxes = getpbs(range)
-        table.sort(plantboxes, function(a,b) return a.dist < b.dist end)
-        local i = 1
-        while i <= #plantboxes do
-            local endIdx = math.min(i + burst - 1, #plantboxes)
-            for j = i, endIdx do
-                local box = plantboxes[j]
-                if box and box.deployable and not box.deployable:FindFirstChild("Seed") then
-                    task.spawn(function() plant_structure(box.entityid, itemID) end)
-                else
-                    if box and box.entityid then plantedboxes[box.entityid] = true end
-                end
+        for _, box in ipairs(plantboxes) do
+            if box and box.deployable and not box.deployable:FindFirstChild("Seed") then
+                plant_structure(box.entityid, itemID)
             end
-                
-            i = endIdx + 1
         end
-        task.wait(delay)
+
+        task.wait(0.01) -- minimal delay to avoid freezing
     end
 end)
+
 
 task.spawn(function()
     while true do
