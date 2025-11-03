@@ -77,28 +77,6 @@ if not Library then
     function Library:Notify(opts) print("[Notify]", opts.Title, opts.Content) end
 end
 
--- Attempt to load addons (pcall safe)
-local SaveManager, InterfaceManager
-do
-    local ok1, sm = pcall(function() return safe_load_remote("https://raw.githubusercontent.com/1dontgiveaf/Fluent-Renewed/refs/heads/main/Addons/SaveManager.luau") end)
-    if ok1 and sm then SaveManager = sm else
-        SaveManager = {}
-        function SaveManager:SetLibrary() end
-        function SaveManager:IgnoreThemeSettings() end
-        function SaveManager:SetIgnoreIndexes() end
-        function SaveManager:SetFolder() end
-        function SaveManager:BuildConfigSection() end
-        function SaveManager:LoadAutoloadConfig() end
-    end
-    local ok2, im = pcall(function() return safe_load_remote("https://raw.githubusercontent.com/1dontgiveaf/Fluent-Renewed/refs/heads/main/Addons/InterfaceManager.luau") end)
-    if ok2 and im then InterfaceManager = im else
-        InterfaceManager = {}
-        function InterfaceManager:SetLibrary() end
-        function InterfaceManager:SetFolder() end
-        function InterfaceManager:BuildInterfaceSection() end
-    end
-end
-
 -- Create main GUI window (safe)
 local Window = Library:CreateWindow{
     Title = "Project Instra Hub -- Booga Booga Reborn",
