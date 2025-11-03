@@ -619,14 +619,26 @@ end)
 task.spawn(function()
     while true do
         if autoeattoggle.Value then
-            local item = fooddropdown.Value
-            if packets and packets.UseBagItem and type(packets.UseBagItem.send) == "function" then
-                pcall(function()
-                    packets.UseBagItem.send(item)
-                end)
+            local itemname = fooddropdown.Value
+            local inv = LocalPlayer:FindFirstChild("PlayerGui")
+                and LocalPlayer.PlayerGui:FindFirstChild("MainGui")
+                and LocalPlayer.PlayerGui.MainGui:FindFirstChild("RightPanel")
+                and LocalPlayer.PlayerGui.MainGui.RightPanel:FindFirstChild("Inventory")
+                and LocalPlayer.PlayerGui.MainGui.RightPanel.Inventory:FindFirstChild("List")
+
+            if inv then
+                for _, child in ipairs(inv:GetChildren()) do
+                    if child:IsA("ImageLabel") and child.Name == itemname then
+                        if packets and packets.UseBagItem and type(packets.UseBagItem.send) == "function" then
+                            pcall(function()
+                                packets.UseBagItem.send(child.LayoutOrder)
+                            end)
+                        end
+                    end
+                end
             end
         end
-        task.wait(1) -- eats every 1 second
+        task.wait(1)
     end
 end)
 
