@@ -467,8 +467,11 @@ Tabs.Tweens:CreateButton({
 
 Tabs.Survival = Window:AddTab({ Title = "Survival", Icon = "heart" })
 
-local autohealtoggle = Tabs.Survival:CreateToggle("autohealtoggle", { Title = "Auto Heal", Default = false })
+-- Auto Eat
+local autoeattoggle = Tabs.Survival:CreateToggle("autoeattoggle", { Title = "Auto Eat", Default = false })
 
+-- Auto Heal
+local autohealtoggle = Tabs.Survival:CreateToggle("autohealtoggle", { Title = "Auto Heal", Default = false })
 local autohealthslider = Tabs.Survival:CreateSlider("autohealthslider", {
     Title = "Heal Below (%)",
     Min = 1,
@@ -476,7 +479,6 @@ local autohealthslider = Tabs.Survival:CreateSlider("autohealthslider", {
     Rounding = 0,
     Default = 50
 })
-
 local healcpsslider = Tabs.Survival:CreateSlider("healcpsslider", {
     Title = "Heal Interval (s)",
     Min = 0.1,
@@ -485,28 +487,13 @@ local healcpsslider = Tabs.Survival:CreateSlider("healcpsslider", {
     Default = 1
 })
 
-local healitemdropdown = Tabs.Survival:CreateDropdown("healitemdropdown", {
-    Title = "Heal Item",
-    Values = { "Bloodfruit", "Berry", "Bluefruit", "Jelly", "Lemon", "Strawberry", "Cooked Meat", "Coconut", "Banana", "Orange" },
-    Default = "Bloodfruit"
-})
-
-
-local autoeattoggle = Tabs.Survival:CreateToggle("autoeattoggle", { Title = "Auto Eat", Default = false })
+-- Shared food selector
 local fooddropdown = Tabs.Survival:CreateDropdown("fooddropdown", {
     Title = "Food Item",
     Values = { "Bloodfruit", "Berry", "Bluefruit", "Jelly", "Lemon", "Strawberry", "Cooked Meat", "Coconut", "Banana", "Orange" },
     Default = "Bloodfruit"
 })
 
-
-
--- Fruit Selector
-local fruitdropdown = Tabs.Survival:CreateDropdown("fruitdropdown", {
-    Title = "Select Fruit",
-    Values = { "Bloodfruit", "Berry", "Bluefruit", "Jelly", "Lemon", "Strawberry", "Coconut", "Banana", "Orange" },
-    Default = "Bloodfruit"
-})
 
 
 -- Basic walk/jump/hip behaviour using the UI elements created above (safe pcall)
