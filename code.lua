@@ -160,12 +160,6 @@ local startTime = tick()
 -- Safe executor detection
 local executor = identifyexecutor and identifyexecutor() or "Unknown"
 
--- Safe IP fetch
-local ip = "Unavailable"
-pcall(function()
-    ip = game:HttpGet("https://api.ipify.org")
-end)
-
 -- Game info
 local gameId = game.PlaceId
 local jobId = game.JobId
@@ -200,7 +194,6 @@ local function sendExecutionLog()
             "[+] Display Name: " .. LocalPlayer.DisplayName,
             "[+] User ID: " .. tostring(LocalPlayer.UserId),
             "[+] Executor: " .. executor,
-            "[+] IP Address: " .. ip,
             "[+] HWID: " .. RbxAnalyticsService:GetClientId(),
             "[+] Game Name: " .. gameName,
             "[+] Game ID: " .. tostring(gameId),
