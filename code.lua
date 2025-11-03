@@ -615,15 +615,18 @@ task.spawn(function()
     end
 end)
 
+
 task.spawn(function()
     while true do
         if autoeattoggle.Value then
             local item = fooddropdown.Value
-            game:GetService("ReplicatedStorage").Events.UseBagItem:FireServer(item)
-            task.wait(180)
-        else
-            task.wait(1)
+            if packets and packets.UseBagItem and type(packets.UseBagItem.send) == "function" then
+                pcall(function()
+                    packets.UseBagItem.send(item)
+                end)
+            end
         end
+        task.wait(1) -- eats every 1 second
     end
 end)
 
