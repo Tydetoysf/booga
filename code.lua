@@ -1,6 +1,6 @@
 -- Booga Booga Reborn GUI with ESP, Fast Kill Aura, Auto-Loot, Teleport, Key System
 
-local expectedKey = "gooning123" -- 🔑 Set your custom key here
+local expectedKey = "TEST1234" -- 🔑 Set your custom key here
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
 
 local function promptKey()
