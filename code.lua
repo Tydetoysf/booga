@@ -1,4 +1,4 @@
--- Booga Booga Reborn GUI Suite (Based on devboogabooga, bossgirmest17, Mond917)
+-- SlideursHub-inspired Booga GUI (Clean, Custom UI)
 
 local expectedKey = "gooning123"
 
@@ -152,3 +152,4 @@ RunService.RenderStepped:Connect(function()
         end
     end
 end)
+
