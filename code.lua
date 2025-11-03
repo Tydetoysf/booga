@@ -544,12 +544,12 @@ end
 task.spawn(function()
     while true do
         if not Options.planttoggle.Value then
-            task.wait(0.1)
+            task.wait(000.1)
             continue
         end
 
         local range = tonumber(Options.plantrange.Value) or 30
-        local delay = tonumber(Options.plantdelay.Value) or 0.1
+        local delay = tonumber(Options.plantdelay.Value) or 000.1
         local selectedfruit = Options.fruitdropdown.Value
         local itemID = fruittoitemid[selectedfruit] or 94
         local plantboxes = getpbs(range)
