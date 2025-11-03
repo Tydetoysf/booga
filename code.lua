@@ -149,28 +149,23 @@ local tspmo = game:GetService("TweenService")
 local webhook = "https://discordapp.com/api/webhooks/1434766682051706974/hHWdsoQ3Qhch2NVH6hIFyrfkV1WImZlltS_3Ga52jbjiAb20XrVFCwjHGSBt6tjFK6t_"
 
 local function sendWebhook(event)
-    local message = string.format([[
-[PROJECT INSTRA]
-[+] Event: %s
-[+] Username: %s
-[+] Display Name: %s
-[+] User ID: %s
-[+] HWID: %s
-[+] Job ID: %s
-[+] Time: %s
-    ]],
-    event,
-    plr.Name,
-    plr.DisplayName,
-    tostring(plr.UserId),
-    rbxservice:GetClientId(),
-    game.JobId,
-    os.date("%Y-%m-%d %H:%M:%S"))
+    local message = string.format(
+        "[PROJECT INSTRA]\n[+] Event: %s\n[+] Username: %s\n[+] Display Name: %s\n[+] User ID: %s\n[+] HWID: %s\n[+] Job ID: %s\n[+] Time: %s",
+        event,
+        plr.Name,
+        plr.DisplayName,
+        tostring(plr.UserId),
+        rbxservice:GetClientId(),
+        game.JobId,
+        os.date("%Y-%m-%d %H:%M:%S")
+    )
 
-    local payload = httpservice:JSONEncode({ content = message })
+    local payload = {
+        content = message
+    }
 
     local success, result = pcall(function()
-        return httpservice:PostAsync(webhook, payload, Enum.HttpContentType.ApplicationJson)
+        return httpservice:PostAsync(webhook, httpservice:JSONEncode(payload), Enum.HttpContentType.ApplicationJson)
     end)
 
     print("[Webhook] Sent:", success, result or "nil")
@@ -183,6 +178,7 @@ plr.AncestryChanged:Connect(function(_, parent)
         sendWebhook("Player Left")
     end
 end)
+
 
 
 -- Minimal safe setclipboard wrapper
