@@ -286,6 +286,16 @@ local killauratoggle = Tabs.Combat:CreateToggle("killauratoggle", { Title = "Kil
 local killaurarangeslider = Tabs.Combat:CreateSlider("killaurarange", { Title = "Range", Min = 1, Max = 9, Rounding = 1, Default = 5 })
 local katargetcountdropdown = Tabs.Combat:CreateDropdown("katargetcountdropdown", { Title = "Max Targets", Values = { "1", "2", "3", "4", "5", "6" }, Default = "1" })
 local kaswingcooldownslider = Tabs.Combat:CreateSlider("kaswingcooldownslider", { Title = "Attack Cooldown (s)", Min = 0.01, Max = 1.01, Rounding = 2, Default = 0.1 })
+local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Tool")
+if tool and tool:FindFirstChild("Handle") then
+    local anim = Instance.new("Animation")
+    anim.AnimationId = "rbxassetid://522635514" -- default rock swing
+    local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+    if hum then
+        local track = hum:LoadAnimation(anim)
+        track:Play()
+    end
+end
 
 --{MAP TAB}
 local resourceauratoggle = Tabs.Map:CreateToggle("resourceauratoggle", { Title = "Resource Aura", Default = false })
@@ -651,6 +661,7 @@ task.spawn(function()
 end)
 
 task.spawn(function()
+    local lastHeal = 0
     while true do
         if autohealtoggle.Value then
             local char = LocalPlayer.Character
@@ -660,8 +671,9 @@ task.spawn(function()
                 local maxhp = hum.MaxHealth
                 local threshold = autohealthslider.Value
                 local itemname = fooddropdown.Value
+                local interval = healcpsslider.Value
 
-                if (hp / maxhp * 100) <= threshold then
+                if (hp / maxhp * 100) <= threshold and tick() - lastHeal >= interval then
                     local inv = LocalPlayer:FindFirstChild("PlayerGui")
                         and LocalPlayer.PlayerGui:FindFirstChild("MainGui")
                         and LocalPlayer.PlayerGui.MainGui:FindFirstChild("RightPanel")
@@ -673,6 +685,7 @@ task.spawn(function()
                             if child:IsA("ImageLabel") and child.Name == itemname then
                                 if packets and packets.UseBagItem and type(packets.UseBagItem.send) == "function" then
                                     packets.UseBagItem.send(child.LayoutOrder)
+                                    lastHeal = tick()
                                 end
                                 break
                             end
@@ -681,9 +694,10 @@ task.spawn(function()
                 end
             end
         end
-        task.wait(healcpsslider.Value)
+        task.wait(0.05) -- tight loop for responsiveness
     end
 end)
+
 
 
 
