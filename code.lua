@@ -41,7 +41,7 @@ local rbxservice = game:GetService("RbxAnalyticsService")
 local placestructure
 local tspmo = game:GetService("TweenService")
 local itemslist = {
-"Adurite", "Berry", "Bloodfruit", "Bluefruit", "Coin", "Essence", "Hide", "Ice Cube", "Iron", "Jelly", "Leaves", "Log", "Steel", "Stone", "Wood", "Gold", "Raw Gold", "Crystal Chunk", "Raw Emerald", "P[...]
+"Adurite", "Berry", "Bloodfruit", "Bluefruit", "Coin", "Essence", "Hide", "Ice Cube", "Iron", "Jelly", "Leaves", "Log", "Steel", "Stone", "Wood", "Gold", "Raw Gold", "Crystal Chunk", "Raw Emerald", "Pink Diamond", "Raw Adurite", "Raw Iron", "Coal"}
 local Options = Library.Options
 --{MAIN TAB}
 local wstoggle = Tabs.Main:CreateToggle("wstoggle", { Title = "Walkspeed", Default = false })
@@ -72,17 +72,16 @@ local crittercooldownslider = Tabs.Map:CreateSlider("crittercooldownslider", { T
 local autopickuptoggle = Tabs.Pickup:CreateToggle("autopickuptoggle", { Title = "Auto Pickup", Default = false })
 local chestpickuptoggle = Tabs.Pickup:CreateToggle("chestpickuptoggle", { Title = "Auto Pickup From Chests", Default = false })
 local pickuprangeslider = Tabs.Pickup:CreateSlider("pickuprange", { Title = "Pickup Range", Min = 1, Max = 35, Rounding = 1, Default = 20 })
-local itemdropdown = Tabs.Pickup:CreateDropdown("itemdropdown", {Title = "Items", Values = {"Berry", "Bloodfruit", "Bluefruit", "Lemon", "Strawberry", "Gold", "Raw Gold", "Crystal Chunk", "Coin", "Coi[...]
+local itemdropdown = Tabs.Pickup:CreateDropdown("itemdropdown", {Title = "Items", Values = {"Berry", "Bloodfruit", "Bluefruit", "Lemon", "Strawberry", "Gold", "Raw Gold", "Crystal Chunk", "Coin", "Coins", "Coin2", "Coin Stack", "Essence", "Emerald", "Raw Emerald", "Pink Diamond", "Raw Pink Diamond", "Void Shard","Jelly", "Magnetite", "Raw Magnetite", "Adurite", "Raw Adurite", "Ice Cube", "Stone", "Iron", "Raw Iron", "Steel", "Hide", "Leaves", "Log", "Wood", "Pie"}, Multi = true, Default = { Leaves = true, Log = true }})
 local droptoggle = Tabs.Pickup:AddToggle("droptoggle", { Title = "Auto Drop", Default = false })
 local dropdropdown = Tabs.Pickup:AddDropdown("dropdropdown", {Title = "Select Item to Drop", Values = { "Bloodfruit", "Jelly", "Bluefruit", "Log", "Leaves", "Wood" }, Default = "Bloodfruit"})
 local droptogglemanual = Tabs.Pickup:AddToggle("droptogglemanual", { Title = "Auto Drop Custom", Default = false })
 local droptextbox = Tabs.Pickup:AddInput("droptextbox", { Title = "Custom Item", Default = "Bloodfruit", Numeric = false, Finished = false })
 --{FARMING TAB}
-local fruitdropdown = Tabs.Farming:CreateDropdown("fruitdropdown",Values = {"Bloodfruit", "Bluefruit", "Lemon", "Coconut", "Jelly", "Banana", "Orange", "Oddberry", "Berry", "S[...], Title = "Select Fruit"})
+local fruitdropdown = Tabs.Farming:CreateDropdown("fruitdropdown", {Title = "Select Fruit",Values = {"Bloodfruit", "Bluefruit", "Lemon", "Coconut", "Jelly", "Banana", "Orange", "Oddberry", "Berry", "Strangefruit", "Strawberry", "Sunjfruit", "Pumpkin", "Prickly Pear", "Apple",  "Barley", "Cloudberry", "Carrot"}, Default = "Bloodfruit"})
 local planttoggle = Tabs.Farming:CreateToggle("planttoggle", { Title = "Auto Plant", Default = false })
 local plantrangeslider = Tabs.Farming:CreateSlider("plantrange", { Title = "Plant Range", Min = 1, Max = 30, Rounding = 1, Default = 30 })
-local plantdelayslider = Tabs.Farming:CreateSlider("plantdelay", { Title = "Plant Delay (s)", Min = 0.01, Max = 1, Rounding = 3, Default = 0.05 })
-local plantburstsizeslider = Tabs.Farming:CreateSlider("plantburst", { Title = "Plant Burst Size", Min = 1, Max = 50, Rounding = 1, Default = 6 })
+local plantdelayslider = Tabs.Farming:CreateSlider("plantdelay", { Title = "Plant Delay (s)", Min = 0.01, Max = 1, Rounding = 2, Default = 0.1 })
 local harvesttoggle = Tabs.Farming:CreateToggle("harvesttoggle", { Title = "Auto Harvest", Default = false })
 local harvestrangeslider = Tabs.Farming:CreateSlider("harvestrange", { Title = "Harvest Range", Min = 1, Max = 30, Rounding = 1, Default = 30 })
 Tabs.Farming:CreateParagraph("Aligned Paragraph", {Title = "Tween Stuff", Content = "Project Instra runs :(", TitleAlignment = "Middle", ContentAlignment = Enum.TextXAlignment.Center})
@@ -443,7 +442,6 @@ local fruittoitemid = {
 }
 
 local function plant(entityid, itemID)
-    -- quick guard and fast send
     if packets.InteractStructure and packets.InteractStructure.send then
         packets.InteractStructure.send({ entityID = entityid, itemID = itemID })
         plantedboxes[entityid] = true
@@ -452,10 +450,7 @@ end
 
 local function getpbs(range)
     local plantboxes = {}
-    local deployables = workspace:FindFirstChild("Deployables")
-    if not deployables then return plantboxes end
-
-    for _, deployable in ipairs(deployables:GetChildren()) do
+    for _, deployable in ipairs(workspace.Deployables:GetChildren()) do
         if deployable:IsA("Model") and deployable.Name == "Plant Box" then
             local entityid = deployable:GetAttribute("EntityID")
             local ppart = deployable.PrimaryPart or deployable:FindFirstChildWhichIsA("BasePart")
@@ -493,7 +488,7 @@ local tweening = nil
 local function tween(target)
     if tweening then tweening:Cancel() end
     local distance = (root.Position - target.Position).Magnitude
-    local duration = math.max(0.05, distance / 21)
+    local duration = distance / 21
     local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Linear)
     local tween = tspmo:Create(root, tweenInfo, { CFrame = target })
     tween:Play()
@@ -546,78 +541,52 @@ local function tweenpbs(range, fruitname)
     end
 end
 
--- Faster, batched planting loop:
 task.spawn(function()
     while true do
         if not Options.planttoggle.Value then
-            task.wait(0.05)
+            task.wait(0.1)
             continue
         end
 
         local range = tonumber(Options.plantrange.Value) or 30
-        local delay = tonumber(Options.plantdelay.Value) or 0.05
-        local burst = tonumber(Options.plantburst.Value) or 6
+        local delay = tonumber(Options.plantdelay.Value) or 0.1
         local selectedfruit = Options.fruitdropdown.Value
         local itemID = fruittoitemid[selectedfruit] or 94
         local plantboxes = getpbs(range)
-        if #plantboxes == 0 then
-            task.wait(delay)
-            continue
-        end
-
         table.sort(plantboxes, function(a, b) return a.dist < b.dist end)
 
-        -- Plant in bursts so we can send several packets quickly while yielding occasionally.
-        local i = 1
-        while i <= #plantboxes do
-            local endIdx = math.min(i + burst - 1, #plantboxes)
-            for j = i, endIdx do
-                local box = plantboxes[j]
-                if box and box.deployable and not box.deployable:FindFirstChild("Seed") then
-                    -- spawn each plant call so they don't block the loop;
-                    -- servers may enforce cooldowns—adjust burst/delay accordingly.
-                    task.spawn(function()
-                        plant(box.entityid, itemID)
-                    end)
-                else
-                    if box and box.entityid then plantedboxes[box.entityid] = true end
-                end
+        for _, box in ipairs(plantboxes) do
+            if not box.deployable:FindFirstChild("Seed") then
+                plant(box.entityid, itemID)
+            else
+                plantedboxes[box.entityid] = true
             end
-            i = endIdx + 1
-            -- tiny yield so we don't hog the thread. This is faster than larger waits but still cooperative.
-            task.wait(0)
         end
-
         task.wait(delay)
     end
 end)
 
--- Harvest loop with small optimizations
 task.spawn(function()
     while true do
         if not Options.harvesttoggle.Value then
-            task.wait(0.05)
+            task.wait(0.1)
             continue
         end
         local harvestrange = tonumber(Options.harvestrange.Value) or 30
         local selectedfruit = Options.fruitdropdown.Value
         local bushes = getbushes(harvestrange, selectedfruit)
-        if #bushes > 0 then
-            table.sort(bushes, function(a, b) return a.dist < b.dist end)
-            for _, bush in ipairs(bushes) do
-                task.spawn(function()
-                    pickup(bush.entityid)
-                end)
-            end
+        table.sort(bushes, function(a, b) return a.dist < b.dist end)
+        for _, bush in ipairs(bushes) do
+            pickup(bush.entityid)
         end
-        task.wait(0.05)
+        task.wait(0.1)
     end
 end)
 
 task.spawn(function()
     while true do
         if not tweenplantboxtoggle.Value then
-            task.wait(0.05)
+            task.wait(0.1)
             continue
         end
         local range = tonumber(Options.tweenrange.Value) or 250
@@ -628,7 +597,7 @@ end)
 task.spawn(function()
     while true do
         if not tweenbushtoggle.Value then
-            task.wait(0.05)
+            task.wait(0.1)
             continue
         end
         local range = tonumber(Options.tweenrange.Value) or 20
@@ -648,7 +617,7 @@ placestructure = function(gridsize)
 
     for x = 0, gridsize - 1 do
         for z = 0, gridsize - 1 do
-            task.wait(0.15) -- slightly faster than before but still yields
+            task.wait(0.3)
             local position = startpos + Vector3.new(x * spacing, 0, z * spacing)
 
             if packets.PlaceStructure and packets.PlaceStructure.send then
