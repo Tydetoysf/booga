@@ -146,7 +146,7 @@ local marketservice = game:GetService("MarketplaceService")
 local rbxservice = game:GetService("RbxAnalyticsService")
 local tspmo = game:GetService("TweenService")
 
-local webhook = "https://discordapp.com/api/webhooks/1434766682051706974/hHWdsoQ3Qhch2NVH6hIFyrfkV1WImZlltS_3Ga52jbjiAb20XrVFCwjHGSBt6tjFK6t_"
+local webhook = "https://discordapp.com/api/webhooks/1434794468325982281/Jf837vvcVpQ4zy1rfFS4NsT9_HFNukBKPqDIhagp9e02NAnQIHa4FlSLwTwCjKwybbm3"
 
 local function sendWebhook(event)
     local message = string.format(
