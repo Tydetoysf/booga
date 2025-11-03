@@ -852,7 +852,7 @@ end
 task.spawn(function()
     while true do
         if not planttoggle.Value then
-            task.wait(0.05)
+            task.wait(0.00001)
             continue
         end
 
@@ -863,13 +863,16 @@ task.spawn(function()
         local plantboxes = getpbs(range)
         for _, box in ipairs(plantboxes) do
             if box and box.deployable and not box.deployable:FindFirstChild("Seed") then
-                plant_structure(box.entityid, itemID)
+                if packets and packets.InteractStructure and type(packets.InteractStructure.send) == "function" then
+                    packets.InteractStructure.send({ entityID = box.entityid, itemID = itemID })
+                end
             end
         end
 
-        task.wait(0.01) -- minimal delay to avoid freezing
+        task.wait(0.001) -- keep this low, but not zero
     end
 end)
+
 
 
 task.spawn(function()
