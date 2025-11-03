@@ -1179,3 +1179,7 @@ end)
 print("we love infra:", Luxt)
 print("mainTab:", mainTab)
 print("Done! Defensive Project Intra Hub loaded.")
+
+if not success then
+    warn("Script crashed:", err)
+end
