@@ -663,6 +663,41 @@ task.spawn(function()
     end
 end)
 
+task.spawn(function()
+    while true do
+        if autohealtoggle.Value then
+            local char = LocalPlayer.Character
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+            if hum then
+                local hp = hum.Health
+                local maxhp = hum.MaxHealth
+                local threshold = autohealthslider.Value
+                local healitem = healitemdropdown.Value
+
+                if (hp / maxhp * 100) <= threshold then
+                    local inv = LocalPlayer:FindFirstChild("PlayerGui")
+                        and LocalPlayer.PlayerGui:FindFirstChild("MainGui")
+                        and LocalPlayer.PlayerGui.MainGui:FindFirstChild("RightPanel")
+                        and LocalPlayer.PlayerGui.MainGui.RightPanel:FindFirstChild("Inventory")
+                        and LocalPlayer.PlayerGui.MainGui.RightPanel.Inventory:FindFirstChild("List")
+
+                    if inv then
+                        for _, child in ipairs(inv:GetChildren()) do
+                            if child:IsA("ImageLabel") and child.Name == healitem then
+                                if packets and packets.UseBagItem and type(packets.UseBagItem.send) == "function" then
+                                    packets.UseBagItem.send(child.LayoutOrder)
+                                end
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        task.wait(healcpsslider.Value)
+    end
+end)
+
 
 
 -- Resource aura
