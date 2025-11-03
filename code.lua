@@ -6,7 +6,7 @@ local InterfaceManager = loadstring(game:HttpGetAsync("https://raw.githubusercon
  
 local Window = Library:CreateWindow{
     Title = "Project Instra Hub -- Booga Booga Reborn",
-    SubTitle = "by Project Instra  ",
+    SubTitle = "by xylo ",
     TabWidth = 160,
     Size = UDim2.fromOffset(830, 525),
     Resize = true,
