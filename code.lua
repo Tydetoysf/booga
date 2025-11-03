@@ -323,6 +323,25 @@ Tabs.Farming:CreateButton({Title = "Place 16x16 Plantboxes (256)", Callback = fu
 Tabs.Farming:CreateButton({Title = "Place 15x15 Plantboxes (225)", Callback = function() placestructure(15) end })
 Tabs.Farming:CreateButton({Title = "Place 10x10 Plantboxes (100)", Callback = function() placestructure(10) end })
 Tabs.Farming:CreateButton({Title = "Place 5x5 Plantboxes (25)", Callback = function() placestructure(5) end })
+Tabs.Farming:CreateButton({
+    Title = "🌱 Plant All Nearby",
+    Description = "Instantly plants all empty boxes in range",
+    Callback = function()
+        local range = tonumber(plantrangeslider.Value) or 30
+        local selectedfruit = fruitdropdown.Value
+        local itemID = fruittoitemid[selectedfruit] or 94
+
+        local plantboxes = getpbs(range)
+        for _, box in ipairs(plantboxes) do
+            if box and box.deployable and not box.deployable:FindFirstChild("Seed") then
+                if packets and packets.InteractStructure and type(packets.InteractStructure.send) == "function" then
+                    packets.InteractStructure.send({ entityID = box.entityid, itemID = itemID })
+                end
+            end
+        end
+    end
+})
+
 
 --{EXTRA TAB}
 Tabs.Extra:CreateButton({Title = "Infinite Yield", Description = "inf yield chat", Callback = function() pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/Tydetoysf/booga/main/code.lua"))() end) end})
