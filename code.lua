@@ -855,7 +855,7 @@ task.spawn(function()
         if not planttoggle.Value then task.wait(0.05); continue end
         local range = tonumber(plantrangeslider.Value) or 30
         local delay = tonumber(plantdelayslider.Value) or 0.05
-        local burst = 50
+        local burst = 1000
         local selectedfruit = fruitdropdown.Value
         local itemID = fruittoitemid[selectedfruit] or 94
         local plantboxes = getpbs(range)
@@ -871,8 +871,8 @@ task.spawn(function()
                     if box and box.entityid then plantedboxes[box.entityid] = true end
                 end
             end
+                
             i = endIdx + 1
-            task.wait(0)
         end
         task.wait(delay)
     end
