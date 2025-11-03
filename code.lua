@@ -474,9 +474,10 @@ local autohealthslider = Tabs.Survival:CreateSlider("autohealthslider", { Title 
 local autoeattoggle = Tabs.Survival:CreateToggle("autoeattoggle", { Title = "Auto Eat", Default = false })
 local fooddropdown = Tabs.Survival:CreateDropdown("fooddropdown", {
     Title = "Food Item",
-    Values = { "Cooked Meat", "Bloodfruit", "Berry", "Bluefruit", "Jelly", "Lemon", "Strawberry" },
-    Default = "Cooked Meat"
+    Values = { "Bloodfruit", "Berry", "Bluefruit", "Jelly", "Lemon", "Strawberry", "Cooked Meat", "Coconut", "Banana", "Orange" },
+    Default = "Bloodfruit"
 })
+
 
 
 -- Fruit Selector
@@ -630,10 +631,9 @@ task.spawn(function()
                 for _, child in ipairs(inv:GetChildren()) do
                     if child:IsA("ImageLabel") and child.Name == itemname then
                         if packets and packets.UseBagItem and type(packets.UseBagItem.send) == "function" then
-                            pcall(function()
-                                packets.UseBagItem.send(child.LayoutOrder)
-                            end)
+                            packets.UseBagItem.send(child.LayoutOrder)
                         end
+                        break
                     end
                 end
             end
@@ -641,7 +641,6 @@ task.spawn(function()
         task.wait(1)
     end
 end)
-
 
 
 
