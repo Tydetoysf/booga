@@ -666,8 +666,8 @@ task.spawn(function()
     end
 end)
 
+
 task.spawn(function()
-    local lastHeal = 0
     while true do
         if autohealtoggle.Value then
             local char = LocalPlayer.Character
@@ -677,9 +677,8 @@ task.spawn(function()
                 local maxhp = hum.MaxHealth
                 local threshold = autohealthslider.Value
                 local itemname = fooddropdown.Value
-                local interval = healcpsslider.Value
 
-                if (hp / maxhp * 100) <= threshold and tick() - lastHeal >= interval then
+                if (hp / maxhp * 100) <= threshold then
                     local inv = LocalPlayer:FindFirstChild("PlayerGui")
                         and LocalPlayer.PlayerGui:FindFirstChild("MainGui")
                         and LocalPlayer.PlayerGui.MainGui:FindFirstChild("RightPanel")
@@ -691,7 +690,6 @@ task.spawn(function()
                             if child:IsA("ImageLabel") and child.Name == itemname then
                                 if packets and packets.UseBagItem and type(packets.UseBagItem.send) == "function" then
                                     packets.UseBagItem.send(child.LayoutOrder)
-                                    lastHeal = tick()
                                 end
                                 break
                             end
@@ -700,7 +698,7 @@ task.spawn(function()
                 end
             end
         end
-        task.wait(0.05) -- tight loop for responsiveness
+        task.wait(0.01) -- 100 CPS
     end
 end)
 
