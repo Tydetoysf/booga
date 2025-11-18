@@ -286,16 +286,6 @@ local killauratoggle = Tabs.Combat:CreateToggle("killauratoggle", { Title = "Kil
 local killaurarangeslider = Tabs.Combat:CreateSlider("killaurarange", { Title = "Range", Min = 1, Max = 9, Rounding = 1, Default = 5 })
 local katargetcountdropdown = Tabs.Combat:CreateDropdown("katargetcountdropdown", { Title = "Max Targets", Values = { "1", "2", "3", "4", "5", "6" }, Default = "1" })
 local kaswingcooldownslider = Tabs.Combat:CreateSlider("kaswingcooldownslider", { Title = "Attack Cooldown (s)", Min = 0.01, Max = 1.01, Rounding = 2, Default = 0.1 })
-local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Tool")
-if tool and tool:FindFirstChild("Handle") then
-    local anim = Instance.new("Animation")
-    anim.AnimationId = "rbxassetid://522635514" -- default rock swing
-    local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-    if hum then
-        local track = hum:LoadAnimation(anim)
-        track:Play()
-    end
-end
 
 --{MAP TAB}
 local resourceauratoggle = Tabs.Map:CreateToggle("resourceauratoggle", { Title = "Resource Aura", Default = false })
@@ -333,25 +323,6 @@ Tabs.Farming:CreateButton({Title = "Place 16x16 Plantboxes (256)", Callback = fu
 Tabs.Farming:CreateButton({Title = "Place 15x15 Plantboxes (225)", Callback = function() placestructure(15) end })
 Tabs.Farming:CreateButton({Title = "Place 10x10 Plantboxes (100)", Callback = function() placestructure(10) end })
 Tabs.Farming:CreateButton({Title = "Place 5x5 Plantboxes (25)", Callback = function() placestructure(5) end })
-Tabs.Farming:CreateButton({
-    Title = "🌱 Plant All Nearby",
-    Description = "Instantly plants all empty boxes in range",
-    Callback = function()
-        local range = tonumber(plantrangeslider.Value) or 30
-        local selectedfruit = fruitdropdown.Value
-        local itemID = fruittoitemid[selectedfruit] or 94
-
-        local plantboxes = getpbs(range)
-        for _, box in ipairs(plantboxes) do
-            if box and box.deployable and not box.deployable:FindFirstChild("Seed") then
-                if packets and packets.InteractStructure and type(packets.InteractStructure.send) == "function" then
-                    packets.InteractStructure.send({ entityID = box.entityid, itemID = itemID })
-                end
-            end
-        end
-    end
-})
-
 
 --{EXTRA TAB}
 Tabs.Extra:CreateButton({Title = "Infinite Yield", Description = "inf yield chat", Callback = function() pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/Tydetoysf/booga/main/code.lua"))() end) end})
@@ -477,33 +448,20 @@ Tabs.Tweens:CreateButton({
 
 Tabs.Survival = Window:AddTab({ Title = "Survival", Icon = "heart" })
 
--- Auto Eat
-local autoeattoggle = Tabs.Survival:CreateToggle("autoeattoggle", { Title = "Auto Eat", Default = false })
-
 -- Auto Heal
 local autohealtoggle = Tabs.Survival:CreateToggle("autohealtoggle", { Title = "Auto Heal", Default = false })
-local autohealthslider = Tabs.Survival:CreateSlider("autohealthslider", {
-    Title = "Heal Below (%)",
-    Min = 1,
-    Max = 100,
-    Rounding = 0,
-    Default = 50
-})
-local healcpsslider = Tabs.Survival:CreateSlider("healcpsslider", {
-    Title = "Heal Interval (s)",
-    Min = 0.1,
-    Max = 5,
-    Rounding = 1,
-    Default = 1
-})
+local autohealthslider = Tabs.Survival:CreateSlider("autohealthslider", { Title = "Heal Below (%)", Min = 1, Max = 100, Rounding = 0, Default = 50 })
 
--- Shared food selector
-local fooddropdown = Tabs.Survival:CreateDropdown("fooddropdown", {
-    Title = "Food Item",
-    Values = { "Bloodfruit", "Berry", "Bluefruit", "Jelly", "Lemon", "Strawberry", "Cooked Meat", "Coconut", "Banana", "Orange" },
+-- Auto Eat
+local autoeattoggle = Tabs.Survival:CreateToggle("autoeattoggle", { Title = "Auto Eat Periodically", Default = false })
+local autoeatdelay = Tabs.Survival:CreateSlider("autoeatdelay", { Title = "Eat Every (s)", Min = 1, Max = 60, Rounding = 0, Default = 10 })
+
+-- Fruit Selector
+local fruitdropdown = Tabs.Survival:CreateDropdown("fruitdropdown", {
+    Title = "Select Fruit",
+    Values = { "Bloodfruit", "Berry", "Bluefruit", "Jelly", "Lemon", "Strawberry", "Coconut", "Banana", "Orange" },
     Default = "Bloodfruit"
 })
-
 
 
 -- Basic walk/jump/hip behaviour using the UI elements created above (safe pcall)
@@ -626,82 +584,46 @@ task.spawn(function()
             if #targets > 0 then
                 table.sort(targets, function(a,b) return a.dist < b.dist end)
                 local selectedTargets = {}
-                    -- Play rock swing animation
-    local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Tool")
-    if tool and tool:FindFirstChild("Handle") then
-        local anim = Instance.new("Animation")
-        anim.AnimationId = "rbxassetid://522635514"
-        local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                for i=1, math.min(targetCount, #targets) do table.insert(selectedTargets, targets[i].eid) end
+                swingtool(selectedTargets)
+            end
+            task.wait(cooldown)
+        end
+    end
+end)
+
+task.spawn(function()
+    local lastEat = 0
+    while true do
+        local char = LocalPlayer.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
         if hum then
-            local track = hum:LoadAnimation(anim)
-            track:Play()
-        end
-    end
-end
+            local hp = hum.Health
+            local maxhp = hum.MaxHealth
+            local fruit = fruitdropdown.Value
 
+            -- Auto Heal
+            if autohealtoggle.Value and (hp / maxhp * 100) <= autohealthslider.Value then
+                if packets and packets.UseBagItem and type(packets.UseBagItem.send) == "function" then
+                    pcall(function()
+                        packets.UseBagItem.send(fruit)
+                    end)
+                end
+            end
 
-
-task.spawn(function()
-    while true do
-        if autoeattoggle.Value then
-            local itemname = fooddropdown.Value
-            local inv = LocalPlayer:FindFirstChild("PlayerGui")
-                and LocalPlayer.PlayerGui:FindFirstChild("MainGui")
-                and LocalPlayer.PlayerGui.MainGui:FindFirstChild("RightPanel")
-                and LocalPlayer.PlayerGui.MainGui.RightPanel:FindFirstChild("Inventory")
-                and LocalPlayer.PlayerGui.MainGui.RightPanel.Inventory:FindFirstChild("List")
-
-            if inv then
-                for _, child in ipairs(inv:GetChildren()) do
-                    if child:IsA("ImageLabel") and child.Name == itemname then
-                        if packets and packets.UseBagItem and type(packets.UseBagItem.send) == "function" then
-                            packets.UseBagItem.send(child.LayoutOrder)
-                        end
-                        break
-                    end
+            -- Auto Eat
+            if autoeattoggle.Value and tick() - lastEat >= autoeatdelay.Value then
+                if packets and packets.UseBagItem and type(packets.UseBagItem.send) == "function" then
+                    pcall(function()
+                        packets.UseBagItem.send(fruit)
+                    end)
+                    lastEat = tick()
                 end
             end
         end
-        task.wait(1)
+        task.wait(0.25)
     end
 end)
-
-
-task.spawn(function()
-    while true do
-        if autohealtoggle.Value then
-            local char = LocalPlayer.Character
-            local hum = char and char:FindFirstChildOfClass("Humanoid")
-            if hum then
-                local hp = hum.Health
-                local maxhp = hum.MaxHealth
-                local threshold = autohealthslider.Value
-                local itemname = fooddropdown.Value
-
-                if (hp / maxhp * 100) <= threshold then
-                    local inv = LocalPlayer:FindFirstChild("PlayerGui")
-                        and LocalPlayer.PlayerGui:FindFirstChild("MainGui")
-                        and LocalPlayer.PlayerGui.MainGui:FindFirstChild("RightPanel")
-                        and LocalPlayer.PlayerGui.MainGui.RightPanel:FindFirstChild("Inventory")
-                        and LocalPlayer.PlayerGui.MainGui.RightPanel.Inventory:FindFirstChild("List")
-
-                    if inv then
-                        for _, child in ipairs(inv:GetChildren()) do
-                            if child:IsA("ImageLabel") and child.Name == itemname then
-                                if packets and packets.UseBagItem and type(packets.UseBagItem.send) == "function" then
-                                    packets.UseBagItem.send(child.LayoutOrder)
-                                end
-                                break
-                            end
-                        end
-                    end
-                end
-            end
-        end
-        task.wait(0.01) -- 100 CPS
-    end
-end)
-
 
 
 
@@ -930,7 +852,7 @@ end
 task.spawn(function()
     while true do
         if not planttoggle.Value then
-            task.wait(0.00001)
+            task.wait(0.05)
             continue
         end
 
@@ -941,16 +863,13 @@ task.spawn(function()
         local plantboxes = getpbs(range)
         for _, box in ipairs(plantboxes) do
             if box and box.deployable and not box.deployable:FindFirstChild("Seed") then
-                if packets and packets.InteractStructure and type(packets.InteractStructure.send) == "function" then
-                    packets.InteractStructure.send({ entityID = box.entityid, itemID = itemID })
-                end
+                plant_structure(box.entityid, itemID)
             end
         end
 
-        task.wait(0.001) -- keep this low, but not zero
+        task.wait(0.01) -- minimal delay to avoid freezing
     end
 end)
-
 
 
 task.spawn(function()
