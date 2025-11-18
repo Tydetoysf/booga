@@ -491,7 +491,7 @@ task.spawn(function()
     end
 end)
 
--- Project Infra: Ultra Fast Auto Heal + Auto Eat
+-- Project Infra: Auto Heal + Auto Eat (fixed)
 task.spawn(function()
     local lastEat = 0
     while true do
@@ -506,7 +506,7 @@ task.spawn(function()
             if autohealtoggle.Value and (hp / maxhp * 100) <= autohealthslider.Value then
                 if packets and packets.UseBagItem and type(packets.UseBagItem.send) == "function" then
                     pcall(function()
-                        packets.UseBagItem.send(fruit)
+                        packets.UseBagItem.send(fruit) -- actually consume fruit
                     end)
                 end
             end
@@ -515,7 +515,7 @@ task.spawn(function()
             if autoeattoggle.Value and tick() - lastEat >= autoeatdelay.Value then
                 if packets and packets.UseBagItem and type(packets.UseBagItem.send) == "function" then
                     pcall(function()
-                        packets.UseBagItem.send(fruit)
+                        packets.UseBagItem.send(fruit) -- eat fruit periodically
                     end)
                     lastEat = tick()
                 end
@@ -524,7 +524,6 @@ task.spawn(function()
         task.wait(0.025) -- ~40 checks per second
     end
 end)
-
 
 
 -- Resource aura
