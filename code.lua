@@ -491,7 +491,8 @@ task.spawn(function()
     end
 end)
 
--- Project Infra: Auto Heal + Auto Eat (fixed)
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UseItem = ReplicatedStorage:WaitForChild("UseBagItem")
 task.spawn(function()
     local lastEat = 0
     while true do
@@ -504,21 +505,17 @@ task.spawn(function()
 
             -- Auto Heal
             if autohealtoggle.Value and (hp / maxhp * 100) <= autohealthslider.Value then
-                if packets and packets.UseBagItem and type(packets.UseBagItem.send) == "function" then
-                    pcall(function()
-                        packets.UseBagItem.send(fruit) -- actually consume fruit
-                    end)
-                end
+                pcall(function()
+                    UseItem:FireServer(fruit)
+                end)
             end
 
             -- Auto Eat
             if autoeattoggle.Value and tick() - lastEat >= autoeatdelay.Value then
-                if packets and packets.UseBagItem and type(packets.UseBagItem.send) == "function" then
-                    pcall(function()
-                        packets.UseBagItem.send(fruit) -- eat fruit periodically
-                    end)
-                    lastEat = tick()
-                end
+                pcall(function()
+                    UseItem:FireServer(fruit)
+                end)
+                lastEat = tick()
             end
         end
         task.wait(0.025) -- ~40 checks per second
