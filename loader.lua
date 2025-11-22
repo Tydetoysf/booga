@@ -8,7 +8,7 @@ end
 
 getgenv().ProjectInfra = {
     Premium = true,
-    Dev = false,
+    Dev = true,
     Connections = {},
     Pages = {},
     Tabs = {Tabs = {}},
@@ -71,8 +71,8 @@ end
 
 
 local Assets = nil
-if getgenv().ProjectInfra.Dev and isfile("ProjectInfra/Premium/Init.lua") then
-    loadstring(readfile("ProjectInfra/Premium/Init.lua"))()
+if getgenv().ProjectInfra.Dev and isfile("ProjectInfra/Init.lua") then
+    loadstring(readfile("ProjectInfra/Init.lua"))()
 else
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Tydetoysf/ProjectInfra/main/init.lua"))()
 end
@@ -170,7 +170,7 @@ if queue_on_teleport then
                     game.Loaded:Wait()
                 end
                 if getgenv().ProjectInfraInit and getgenv().ProjectInfraInit.Dev and isfile("ProjectInfra/Loader.lua") then
-                    loadstring(readfile("ProjectInfra/Premium/Loader.lua"))()
+                    loadstring(readfile("ProjectInfra/Loader.lua"))()
                 else
                     loadstring(game:HttpGet("https://raw.githubusercontent.com/Tydetoysf/ProjectInfra/main/loader.lua"))()
                 end
